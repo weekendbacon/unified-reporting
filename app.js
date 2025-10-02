@@ -1,43 +1,30 @@
-const SUPABASE_URL = 'https://tqjuxzcqnzwfskjfnhdd.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxanV4emNxbnp3ZnNramZuaGRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3MTA4MjIsImV4cCI6MjA3NDI4NjgyMn0.0-kC5SBP4wOvGLvklBAozrGJ_52Cjy6fTHkDA0gD__g'
+async function fetchDataAndDisplay() {
+    try {
+        // Fetch data from your Netlify Function endpoint
+        const response = await fetch('/.netlify/functions/fetch-data');
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const data = await response.json();
+        
+        const container = document.getElementById('data-container');
+        container.innerHTML = ''; // Clear previous content
 
-async function fetchData() {
-  const { data, error } = await supabase
-    .from('public.reports') 
-    .select('*');
-
-  if (error) {
-    console.error('Error fetching data:', error.message);
-    return;
-  }
-
-  return data;
+        if (data.length > 0) {
+            data.forEach(row => {
+                const item = document.createElement('div');
+                item.textContent = JSON.stringify(row); // Display the data
+                container.appendChild(item);
+            });
+        } else {
+            container.textContent = 'No data found.';
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        document.getElementById('data-container').textContent = 'Failed to load data.';
+    }
 }
 
-async function displayData() {
-  const data = await fetchData();
-  const container = document.getElementById('data-container');
-
-  if (!data) {
-    container.innerHTML = '<p>No data found or an error occurred.</p>';
-    return;
-  }
-
-  // Clear previous content
-  container.innerHTML = '';
-
-  // Iterate over the data and create a list of items
-  const ul = document.createElement('ul');
-  data.forEach(item => {
-    const li = document.createElement('li');
-    li.textContent = item.report_name; // Replace 'name' with your column name
-    ul.appendChild(li);
-  });
-
-  container.appendChild(ul);
-}
-
-// Call the function to display the data when the page loads
-displayData();
+fetchDataAndDisplay();
