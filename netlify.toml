@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  functions = "netlify/functions"
+  publish = "."
+
+[build.environment]
+  SUPABASE_URL = "${SUPABASE_URL}"
+  SUPABASE_ANON_KEY = "${SUPABASE_ANON_KEY}"
